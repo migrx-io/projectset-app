@@ -63,9 +63,9 @@ roles:
 
 ```
 
-kubectl create ns projectset-api-system
+kubectl create ns projectset-app-system
 
-kubectl create secret generic app-conf --from-file=app.yaml=app.yaml --namespace projectset-api-system
+kubectl create secret generic app-conf --from-file=app.yaml=app.yaml --namespace projectset-app-system
 
 kubectl apply -f ./deploy/manifests.yaml
   
@@ -74,7 +74,7 @@ kubectl apply -f ./deploy/manifests.yaml
 proxy app
 
 ```
-kubectl port-forward service/projectset-api-service -n projectset-api-system 8082:8082
+kubectl port-forward service/projectset-app-service -n projectset-app-system 8082:8082
 
 
 open http://localhost:8082

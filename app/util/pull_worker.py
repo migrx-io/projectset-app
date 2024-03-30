@@ -125,7 +125,7 @@ def clone_pull_repo():
         log.debug("chekc and pull %s", v)
 
         dir_name = "/tmp/" + k
-        url_auth = "https://{}:{}@{}".format("projectset-api", v["token"],
+        url_auth = "https://{}:{}@{}".format("projectset-app", v["token"],
                                              v["url"][8:])
 
         repo_dir = "{}/{}".format(dir_name, v["url"].split("/")[-1][:-4])

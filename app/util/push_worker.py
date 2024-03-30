@@ -244,7 +244,7 @@ def process_state(db, data):
                     log.debug("file is not changed - skip")
                     return True
         # set url
-        url_auth = "https://{}:{}@{}".format("projectset-api", v["token"],
+        url_auth = "https://{}:{}@{}".format("projectset-app", v["token"],
                                              v["url"][8:])
 
         # add new branch
@@ -296,7 +296,7 @@ def process_state(db, data):
             log.debug("found file: %s..deleting..", cr)
 
             # set url
-            url_auth = "https://{}:{}@{}".format("projectset-api", v["token"],
+            url_auth = "https://{}:{}@{}".format("projectset-app", v["token"],
                                                  v["url"][8:])
 
             # add new branch

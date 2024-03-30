@@ -2,20 +2,20 @@
 # kind: Namespace
 # metadata:
 #   labels:
-#     app.kubernetes.io/component: projectset-api
+#     app.kubernetes.io/component: projectset-app
 #     app.kubernetes.io/name: namespace
-#     app.kubernetes.io/part-of: projectset-api
-#   name: projectset-api-system
+#     app.kubernetes.io/part-of: projectset-app
+#   name: projectset-app-system
 # ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app.kubernetes.io/component: projectset-api
+    app.kubernetes.io/component: projectset-app
     app.kubernetes.io/name: service
-    app.kubernetes.io/part-of: projectset-api
-  name: projectset-api-service
-  namespace: projectset-api-system
+    app.kubernetes.io/part-of: projectset-app
+  name: projectset-app-service
+  namespace: projectset-app-system
 spec:
   ports:
   - name: http
@@ -23,43 +23,43 @@ spec:
     protocol: TCP
     targetPort: http
   selector:
-    name: projectset-api
+    name: projectset-app
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/component: projectset-api
+    app.kubernetes.io/component: projectset-app
     app.kubernetes.io/name: deployment
-    app.kubernetes.io/part-of: projectset-api
-    name: projectset-api
-  name: projectset-api
-  namespace: projectset-api-system
+    app.kubernetes.io/part-of: projectset-app
+    name: projectset-app
+  name: projectset-app
+  namespace: projectset-app-system
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: projectset-api
+      name: projectset-app
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/default-container: projectset-api
+        kubectl.kubernetes.io/default-container: projectset-app
       labels:
-        name: projectset-api
+        name: projectset-app
     spec:
       containers:
-      - image: migrx/projectset-api:0.1.0
+      - image: migrx/projectset-app:0.1.0
         imagePullPolicy: Always
-        name: projectset-api
+        name: projectset-app
         env:
         - name: APP_CONF
           value: "/app/secret/app.yaml"
         - name: LOGLEVEL
           value: DEBUG
         - name: GIT_EMAIL
-          value: "projectset-api@migrx.io"
+          value: "projectset-app@migrx.io"
         - name: GIT_USER
-          value: "projectset-api"
+          value: "projectset-app"
         ports:
         - containerPort: 8082
           name: http
