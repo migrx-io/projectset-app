@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>ProjectSet CRs</h3>
+<button id="create_projectset" class="edit-modal-opener btn btn-success" 
+   data-toggle="modal"
+   data-whatever="create" href="#">Create</button>
+<button id="delete_projectset" class="edit-modal-confirm-opener btn btn-danger" 
+   data-toggle="modal"
+   href="#">Delete</button>
+<hr>
+<div class="container-fluid">
+
+  <table id="data" class="table by_env projectset">
+    <thead>
+      <tr>
+        <th>repo</th>
+        <th>enviroment</th>
+        <th>name</th>
+        <th>template</th>
+        <th>labels</th>
+        <th>annotations</th>
+        <th>op</th>
+        <th>status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in projectset_list %}
+
+      {% if i.status != "FINISHED" %}
+        <tr class="bg-warning">
+       {% else %}
+        <tr>
+       {% endif %}
+
+          <td>{{ i.repo }}</td>
+          <td>{{ i.env }}</td>
+          <td>{{ i.name }}</td>
+          <td>{{ i.template }}</td>
+          <td>
+              {% for tag in i.labels %}
+                <span class="badge bg-secondary rounded-pill">{{tag}}</span>
+              {% endfor %}
+          </td>
+          <td>
+              {% for tag in i.annotations %}
+                <span class="badge bg-secondary rounded-pill">{{tag}}</span>
+              {% endfor %}
+          </td>
+          <td>{{ i.op }}</td>
+          <td>{{ i.status }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ProjectSet Service</title>
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename="css/bootstrap.min.css") }}" >
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename="css/dataTables.bootstrap5.css") }}">
+
+    <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename="js/jquery-3.6.0.min.js") }}"></script>
+    <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename="js/popper.min.js") }}"></script>
+    <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename="js/bootstrap.min.js") }}"></script>
+    <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename="js/jquery.dataTables.js") }}"></script>
+    <script type="text/javascript" charset="utf8" src="{{ url_for('static', filename="js/dataTables.bootstrap5.js") }}"></script>
+
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('projectset_page.projectset') }}">ProjectSet CRs</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('projectset_template_page.projectset') }}">ProjectSetTemplate CRs</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('repo_page.repo') }}">Enviroments</a>
+            </li>
+          </ul>
+        </div>
+        <div class="navbar-end">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('login_page.logout') }}">Logout</a>
+                </li>
+            </ul>
+         </div>
+
+    </div>
+    </nav>
+
+    <hr>
+
+    <div class="container-fluid">                                                        
+      {% block content %}{% endblock %}                                            
+    </div>     
+
+     {% block scripts %}
+      <script>
+
+        $(document).ready(function () {
+ 
+            var groupColumn = 0;
+            // group by git cluster 
+            var table = $('.by_env').DataTable({
+                columnDefs: [{ className: "dt-nowrap", "targets": [1,2,3] },
+                             { visible: false, targets: groupColumn }],
+                order: [[groupColumn, 'asc']],
+                displayLength: 25,
+                drawCallback: function (settings) {
+                    var api = this.api();
+                    var rows = api.rows({ page: 'current' }).nodes();
+                    var last = null;
+
+                    api.column(groupColumn, { page: 'current' })
+                        .data()
+                        .each(function (group, i) {
+                            if (last !== group) {
+                                $(rows)
+                                    .eq(i)
+                                    .before(
+                                        '<tr class="group"><td colspan="7"><h5>' +
+                                            group +
+                                        '</h5></td></tr>'
+                                    );
+
+                                last = group;
+                            }
+                        });
+                }
+        });
+
+        // Order by the grouping
+        table.on('click', 'tbody tr.group', function () {
+            var currentOrder = table.order()[0];
+            if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
+                table.order([groupColumn, 'desc']).draw();
+            }
+            else {
+                table.order([groupColumn, 'asc']).draw();
+            }
+        });
+
+        
+        table.on('click', 'tbody tr', (e) => {
+
+            let classList = e.currentTarget.classList;
+        
+            if (classList.contains('selected')) {
+                classList.remove('selected');
+            }
+            else {
+                table.rows('.selected').nodes().each((row) => row.classList.remove('selected'));
+                classList.add('selected');
+            }
+
+        });
+    
+        table.on('dblclick', 'tbody tr', function () {
+
+            var data = table.row( this ).data();
+            crd_id = data[0] + "," + data[1] + "," + data[2]
+
+            var url = window.location.href + "edit/" + btoa(crd_id)
+
+            if ($("table").hasClass("projectsettemplate")){
+                url = window.location.href + "edit/" + btoa(crd_id)
+            }
+
+            $.get(url, function (data) {
+
+                    $('#Modal .modal-content').html(data);
+                    $('#Modal').modal();
+
+
+                    $('#submit').click(function (event) {
+                        event.preventDefault();
+
+                        $.post(url, data = $('#ModalForm').serialize(), function (
+                            data) {
+                            if (data.status == 'ok') {
+                                $('#Modal').modal('hide');
+                                location.reload();
+                            } else {
+                                $("#modal-error-text").text("ERROR: " + data.error);
+                            }
+                        }).fail(function(xhr, status, error) {
+                                alert("Error: " + xhr.responseText);
+                        });
+                    });
+                })
+
+        });
+
+        // open modal window
+        $('.edit-modal-opener').click(function () {
+                var url = window.location.href +  $(this).data('whatever');
+
+                $.get(url, function (data) {
+                    $('#Modal .modal-content').html(data);
+                    $('#Modal').modal();
+
+
+                    $('#submit').click(function (event) {
+                        event.preventDefault();
+
+                        $.post(url, data = $('#ModalForm').serialize(), function (
+                            data) {
+                            if (data.status == 'ok') {
+                                $('#Modal').modal('hide');
+                                location.reload();
+                            } else {
+                                $("#modal-error-text").text("ERROR: " + data.error);
+                            }
+                        }).fail(function(xhr, status, error) {
+                                alert("Error: " + xhr.responseText);
+                        });
+
+                    });
+                })
+        });
+
+        // open modal confirm window
+        $('.edit-modal-confirm-opener').click(function () {
+
+                var data = table.rows('.selected').data()
+
+                if (data.length == 0) {
+                    alert("Select instance to delete")
+                    return
+                }
+
+                crd_id = data[0][0] + "," + data[0][1] + "," + data[0][2]
+
+                confirm('Are you sure you want delete instance?')
+
+                var url = window.location.href +  "delete/" + btoa(crd_id)
+
+                if ($("table").hasClass("projectsettemplate")){
+                    url = window.location.href + "delete/" + btoa(crd_id)
+                }
+
+                $.post(url, function (data) {
+                    if (data.status == 'ok') {
+                        location.reload();
+                    } else {
+                        alert(data.error);
+                    }
+                })
+            
+        });
+
+    });
+
+     </script>
+
+    {% endblock %}
+ 
+    <!-- Dynamic Modal -->
+    <div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <!-- load content here -->
+            </div>
+        </div>
+    </div>
+    <!-- End Dynamic Modal -->
+    <hr>
+    <footer><footer>migrx.io. Enviroment as Code</footer>
+    <br>
+    </html>
