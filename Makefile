@@ -32,4 +32,12 @@ docker-build:
 docker-push:
 	docker push ${IMAGE}:${VERSION}
 
-
+PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le                     
+.PHONY: docker-buildx                                                              
+docker-buildx:
+	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
+	docker buildx create --name project-v3-builder                    
+	docker buildx use project-v3-builder                                
+	docker buildx build --push --platform=$(PLATFORMS) --tag ${IMAGE}:${VERSION} -f Dockerfile.cross .
+	docker buildx rm project-v3-builder
+	rm Dockerfile.cross     
