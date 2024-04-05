@@ -1,4 +1,5 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 AS build
+ARG TARGETOS TARGETARCH
 LABEL MAINTAINER="Anatolii Makarov <anatolii.makaroff@gmail.com>"
 
 RUN apt-get update && \
