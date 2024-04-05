@@ -10,23 +10,28 @@ RUN apt-get update && \
         python3 \
         python3-dev \
         python3-pip \
+        python3-venv \
         vim-tiny && \
     apt-get -qq clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /app
 
-RUN useradd -ms /bin/bash appuser
+# RUN useradd -ms /bin/bash appuser
 COPY . /app
 RUN rm -rf /app/app.yaml /app/config/app.db
-RUN chown -R appuser:appuser /app
+# RUN chown -R appuser:appuser /app
+RUN python3 -m venv pyenv && pyenv/bin/pip install --upgrade pip wheel setuptools \
+ && pyenv/bin/pip install -r requirements.txt
 
-USER appuser
+RUN chgrp -R 0 /app && \
+    chmod -R g=u /app 
+RUN chown -R 1001:0 /app
 
-RUN pip3 install -r requirements.txt
+USER 1001
 
 ENV PORT=8082 
 ENV LOGLEVEL=INFO
-ENV PYENV=~/.local/bin
+ENV PYENV=/app/pyenv/bin
 
 CMD ["./start"]
