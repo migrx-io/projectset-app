@@ -48,7 +48,7 @@ spec:
         name: projectset-app
     spec:
       containers:
-      - image: migrx/projectset-app:0.1.0
+      - image: quay.io/migrx/projectset-app:0.1.0
         imagePullPolicy: Always
         name: projectset-app
         env:
