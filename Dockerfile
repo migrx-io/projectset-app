@@ -28,6 +28,9 @@ RUN chgrp -R 0 /app && \
     chmod -R g=u /app 
 RUN chown -R 1001:0 /app
 
+RUN touch //.gitconfig && chgrp -R 0 //.gitconfig && chmod -R g=u //.gitconfig && \
+    chown 1001:0 //.gitconfig
+
 USER 1001
 
 ENV PORT=8082 
