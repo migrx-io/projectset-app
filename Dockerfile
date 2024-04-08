@@ -19,7 +19,8 @@ WORKDIR /app
 
 # RUN useradd -ms /bin/bash appuser
 COPY . /app
-RUN rm -rf /app/app.yaml /app/config/app.db
+COPY .gitconfig /
+RUN rm -rf /app/app.yaml /app/config/app.db .git
 # RUN chown -R appuser:appuser /app
 RUN python3 -m venv pyenv && pyenv/bin/pip install --upgrade pip wheel setuptools \
  && pyenv/bin/pip install -r requirements.txt
@@ -28,8 +29,8 @@ RUN chgrp -R 0 /app && \
     chmod -R g=u /app 
 RUN chown -R 1001:0 /app
 
-RUN touch //.gitconfig && chgrp -R 0 //.gitconfig && chmod -R g=u //.gitconfig && \
-    chown 1001:0 //.gitconfig
+RUN chgrp -R 0 /.gitconfig && chmod -R g=u /.gitconfig && \
+    chown 1001:0 /.gitconfig
 
 USER 1001
 
