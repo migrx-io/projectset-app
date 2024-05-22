@@ -49,21 +49,27 @@ def get_user_repo_permission(user, conf):
 
     group_search = conf["groupSearch"]
 
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {group_search['token']}",
-        "X-GitHub-Api-Version": "2022-11-28"
-    }
-    response = requests.get(group_search["url"].format(**{"user": user}),
-                            timeout=10,
-                            headers=headers)
+    if conf["provider"] == "github":
 
-    if response.status_code == 200:
-        data = response.json()
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {group_search['token']}",
+            "X-GitHub-Api-Version": "2022-11-28"
+        }
+        response = requests.get(group_search["url"].format(**{"user": user}),
+                                timeout=10,
+                                headers=headers)
 
-        log.debug("get_user_repo_permission: data: %s", data)
+        if response.status_code == 200:
+            data = response.json()
 
-        return [group_search["group_map"].get(data["role_name"])]
+            log.debug("get_user_repo_permission: data: %s", data)
+
+            return [group_search["group_map"].get(data["role_name"])]
+
+    elif conf["provider"] == "gitlab":
+
+        return []
 
     return []
 
