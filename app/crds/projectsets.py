@@ -39,6 +39,9 @@ def get_projectset(typ):
 
 def build_tags(labels):
 
+    if labels is None:
+        return ""
+
     log.debug("build tags: %s", labels)
 
     label_tags = []

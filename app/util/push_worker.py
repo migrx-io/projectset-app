@@ -203,7 +203,7 @@ def is_cr_exists(typ, parts):
     log.debug("is_cr_exists: ydata: %s", ydata)
 
     if typ == "projectset":
-        cr_dir = ydata.get("envs", {}).get(k, {}).get("projectset-crds")
+        cr_dir = ydata.get("envs", {}).get(k, {}).get("projectset-crs")
     else:
         cr_dir = ydata.get("envs", {}).get(k, {}).get("projectset-templates")
 
@@ -244,7 +244,7 @@ def process_state(db, data):
                     log.debug("file is not changed - skip")
                     return True
         # set url
-        url_auth = "https://{}:{}@{}".format("projectset-app", v["token"],
+        url_auth = "https://{}:{}@{}".format("projectset-api", v["token"],
                                              v["url"][8:])
 
         # add new branch
@@ -296,7 +296,7 @@ def process_state(db, data):
             log.debug("found file: %s..deleting..", cr)
 
             # set url
-            url_auth = "https://{}:{}@{}".format("projectset-app", v["token"],
+            url_auth = "https://{}:{}@{}".format("projectset-api", v["token"],
                                                  v["url"][8:])
 
             # add new branch

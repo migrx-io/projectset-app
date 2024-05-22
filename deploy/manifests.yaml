@@ -52,6 +52,11 @@ spec:
         imagePullPolicy: Always
         name: projectset-app
         env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openai-api-key
+              key: token
         - name: APP_CONF
           value: "/app/secret/app.yaml"
         - name: LOGLEVEL

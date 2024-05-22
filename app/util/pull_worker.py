@@ -51,7 +51,7 @@ def _parse_clone_dir(repo_url, repo_dir, myaml, remote_br):
         # read templates
         template_dir = "{}/{}".format(repo_dir,
                                       env.get("projectset-templates"))
-        projectset_dir = "{}/{}".format(repo_dir, env.get("projectset-crds"))
+        projectset_dir = "{}/{}".format(repo_dir, env.get("projectset-crs"))
 
         log.debug("template_dir: %s, projectset_dir: %s", template_dir,
                   projectset_dir)
@@ -125,7 +125,7 @@ def clone_pull_repo():
         log.debug("chekc and pull %s", v)
 
         dir_name = "/tmp/" + k
-        url_auth = "https://{}:{}@{}".format("projectset-app", v["token"],
+        url_auth = "https://{}:{}@{}".format("projectset-api", v["token"],
                                              v["url"][8:])
 
         repo_dir = "{}/{}".format(dir_name, v["url"].split("/")[-1][:-4])

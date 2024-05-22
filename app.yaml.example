@@ -1,18 +1,33 @@
 envs:
   test-ocp-cluster:
     description: Dev repo for dev/preprod clusters
-    url: https://github.com/migrx-io/projectset-crds.git
+    url: https://github.com/migrx-io/projectset-crs.git
     branch: main
     token: <token>
     conf_file: projectsets.yaml
   prod-ocp-cluster:
     description: Prod repo for production clusters
-    url: https://github.com/migrx-io/projectset-crds.git
+    url: https://github.com/migrx-io/projectset-crs.git
     branch: main  
     token: <token>
     conf_file: projectsets.yaml
 
 auth:
+
+  github:
+    client_id: "<client_id>"
+    client_secret: "<client_secret>"
+    authorization_base_url: 'https://github.com/login/oauth/authorize'
+    token_url: 'https://github.com/login/oauth/access_token'
+    profile_url: 'https://api.github.com/user'
+
+    groupSearch:
+      url: 'https://api.github.com/repos/<USER>/<REPO>/collaborators/{user}/permission'
+      token: '<token>'
+      group_map:
+        admin: "admin"
+        read: "user"
+
   ldap:
     url: "ldap://127.0.0.1:389"
     bindDN: "cn=admin,dc=example,dc=org"
@@ -31,6 +46,8 @@ auth:
       group_map:
         admins: "admin"
         developers: "user"
+
+chat_only: user
 
 roles:
   user:
@@ -53,6 +70,10 @@ roles:
     (.*)/repo/?$:
       - all
     (.*)/logout/?$:
+      - all
+    (.*)/chat/?$:
+      - all
+    (.*)/chat/data:
       - all
 
   admin:
@@ -79,4 +100,8 @@ roles:
     (.*)/projectsettemplate/delete/:
       - all
     (.*)/projectsettemplate/create/?$:
+      - all
+    (.*)/chat/?$:
+      - all
+    (.*)/chat/data:
       - all

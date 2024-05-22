@@ -9,10 +9,14 @@ export X_API_KEY=
 export JWT_EXP=31536000
 export JWT_HEADER="JWT"
 export ADMIN_DISABLE="n"
+export AUTH_TYPES="ldap,github"
 export ADMIN_PASSWD=
 export PWORKERS=1
 export PWORKERS_SLEEP=15
 export APP_CONF=./app.yaml
+export OPENAI_API_KEY=
+export OPENAI_MODEL=
+export PROMT=
 
 ```
 
@@ -24,13 +28,13 @@ app.yaml
 envs:
   test-ocp-cluster:
     description: Dev repo for dev/preprod clusters
-    url: https://github.com/migrx-io/projectset-crds.git
+    url: https://github.com/migrx-io/projectset-crs.git
     branch: main
     token: ghp_Osa...
     conf_file: projectsets.yaml
   prod-ocp-cluster:
     description: Prod repo for production clusters
-    url: https://github.com/migrx-io/projectset-crds.git
+    url: https://github.com/migrx-io/projectset-crs.git
     branch: main  
     token: ghp_Osa...
     conf_file: projectsets.yaml

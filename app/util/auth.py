@@ -13,7 +13,7 @@ import re
 
 def authenticate(username, password):
 
-    ok, data = auth_call(username, password)
+    ok, data = auth_call_ldap(username, password)
 
     log.debug("auth_call: status: %s / text %s", ok, data)
 
@@ -28,7 +28,7 @@ def authenticate(username, password):
     return True, access_token
 
 
-def auth_call(email, password):
+def auth_call_ldap(email, password):
 
     log.debug("auth_call: email: %s / password %s", email, password)
 
@@ -153,7 +153,8 @@ def jwt_required(page=False):
 
                 is_checked, data = check_permissions(login, claims, request)
 
-                if login == "admin" and os.environ["ADMIN_DISABLE"] == "n":
+                if login == "admin" and os.environ.get("ADMIN_DISABLE",
+                                                       "n") == "n":
                     return fn(*args, **kwargs)
 
                 if not is_checked:

@@ -24,23 +24,26 @@ def _sync_ldap(args):
         try:
             ld = Ldap()
 
-            users = ld.load_users()
+            if ld.server is not None:
 
-            with db.get_conn() as con:
+                users = ld.load_users()
 
-                for u in users:
+                with db.get_conn() as con:
 
-                    log.debug("load user : %s", u)
+                    for u in users:
 
-                    con.execute("""
-                                DELETE FROM users WHERE id = '{}'
-                                """.format(u["id"]))
+                        log.debug("load user : %s", u)
 
-                    con.execute("""
-                                INSERT OR IGNORE INTO users(id, username, email, groups)
-                                VALUES ('{}', '{}', '{}', '{}')
-                                """.format(u["id"], u["username"], u["email"],
-                                           json.dumps(u["groups"])))
+                        con.execute("""
+                                    DELETE FROM users WHERE id = '{}'
+                                    """.format(u["id"]))
+
+                        con.execute("""
+                                    INSERT OR IGNORE INTO users(id, username, email, groups)
+                                    VALUES ('{}', '{}', '{}', '{}')
+                                    """.format(u["id"], u["username"],
+                                               u["email"],
+                                               json.dumps(u["groups"])))
 
         except Exception as e:
             log.error("_sync_ldap: %s", e)
@@ -87,6 +90,12 @@ class Ldap:
 
     def __init__(self):
 
+        self.con = None
+        self.server = None
+
+        if "ldap" not in os.environ.get("AUTH_TYPES", "ldap").split(","):
+            return
+
         # read config
         with open(os.environ.get("APP_CONF", "app.yaml"),
                   'r',
@@ -96,14 +105,12 @@ class Ldap:
 
             log.debug("get_envs: data: %s", data)
 
-            envs = data.get("auth", {}).get("ldap", {})
+            envs = data.get("auth", {}).get("ldap")
 
             log.debug("get_envs: %s", envs)
 
             # read config and
             self.server = envs
-
-        self.con = None
 
     def connect(self, user, passwd):
 
