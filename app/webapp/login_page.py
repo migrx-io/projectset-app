@@ -47,14 +47,13 @@ def is_only_chat(claims):
 
 def get_user_repo_permission(user, conf):
 
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {conf['token']}",
-        "X-GitHub-Api-Version": "2022-11-28"
-    }
-
     group_search = conf["groupSearch"]
 
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {group_search['token']}",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
     response = requests.get(group_search["url"].format(**{"user": user}),
                             timeout=10,
                             headers=headers)
@@ -86,7 +85,7 @@ def callback():
     log.debug("callback: oauth: %s", oauth)
 
     token = oauth.fetch_token(data["token_url"],
-                              client_secret=["client_secret"],
+                              client_secret=data["client_secret"],
                               authorization_response=request.url)
 
     log.debug("callback: token: %s", token)
