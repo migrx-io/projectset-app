@@ -19,7 +19,7 @@ def get_oauth_data():
     with open(os.environ.get("APP_CONF", "app.yaml"), 'r',
               encoding="utf-8") as file:
 
-        data = yaml.safe_load(file)["auth"]["github"]
+        data = yaml.safe_load(file)["auth"]["oauth"]
 
     return data
 
@@ -53,7 +53,9 @@ def get_user_repo_permission(user, conf):
         "X-GitHub-Api-Version": "2022-11-28"
     }
 
-    response = requests.get(conf["url"].format(**{"user": user}),
+    group_search = conf["groupSearch"]
+
+    response = requests.get(group_search["url"].format(**{"user": user}),
                             timeout=10,
                             headers=headers)
 
@@ -62,12 +64,12 @@ def get_user_repo_permission(user, conf):
 
         log.debug("get_user_repo_permission: data: %s", data)
 
-        return [conf["group_map"].get(data["role_name"])]
+        return [group_search["group_map"].get(data["role_name"])]
 
     return []
 
 
-@login_page.route("github/callback", methods=["GET"])
+@login_page.route("oauth/callback", methods=["GET"])
 def callback():
     """ Retrieving an access token.
     """
@@ -75,32 +77,26 @@ def callback():
     with open(os.environ.get("APP_CONF", "app.yaml"), 'r',
               encoding="utf-8") as file:
 
-        data = yaml.safe_load(file)["auth"]
+        data = yaml.safe_load(file)["auth"]["oauth"]
 
     log.debug("callback: data: %s", data)
 
-    github = OAuth2Session(data["github"]["client_id"],
-                           state=session['oauth_state'])
+    oauth = OAuth2Session(data["client_id"], state=session['oauth_state'])
 
-    log.debug("callback: github: %s", github)
+    log.debug("callback: oauth: %s", oauth)
 
-    token = github.fetch_token(data["github"]["token_url"],
-                               client_secret=data["github"]["client_secret"],
-                               authorization_response=request.url)
+    token = oauth.fetch_token(data["token_url"],
+                              client_secret=["client_secret"],
+                              authorization_response=request.url)
 
     log.debug("callback: token: %s", token)
 
-    github = OAuth2Session(data["github"]["client_id"], token=token)
-    profile = github.get(data["github"]["profile_url"]).json()
+    oauth = OAuth2Session(data["client_id"], token=token)
+    profile = oauth.get(data["profile_url"]).json()
 
     log.debug("callback: profile: %s", profile)
 
-    group_search = data["github"]["groupSearch"]
-
-    # get user permission
-    log.debug("callback: groupSearch: %s", group_search)
-
-    user_roles = get_user_repo_permission(profile["login"], group_search)
+    user_roles = get_user_repo_permission(profile["login"], data)
 
     access_token = create_access_token(
         identity=profile["login"], additional_claims={"groups": user_roles})
@@ -139,16 +135,15 @@ def login():
         return redirect(url_for('repo_page.repo'))
 
     # Check which button presssed
-    is_github = request.form.get("github")
-    # is_ldap = request.form.get("ldap")
+    is_oauth = request.form.get("oauth")
 
     # auth type
-    if is_github:
+    if is_oauth:
 
         data = get_oauth_data()
 
-        github = OAuth2Session(data["client_id"])
-        authorization_url, state = github.create_authorization_url(
+        oauth = OAuth2Session(data["client_id"])
+        authorization_url, state = oauth.create_authorization_url(
             data["authorization_base_url"])
 
         log.debug("authorization_url: %s", authorization_url)
