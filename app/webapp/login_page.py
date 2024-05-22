@@ -69,7 +69,29 @@ def get_user_repo_permission(user, conf):
 
     elif conf["provider"] == "gitlab":
 
-        return []
+        # gitlab return only code so we need to have that map
+        access_map = {
+            10: "guest",
+            20: "reporter",
+            30: "developer",
+            40: "maintainer",
+            50: "owner"
+        }
+
+        headers = {"PRIVATE-TOKEN": f"{group_search['token']}"}
+        response = requests.get(group_search["url"].format(**{"user": user}),
+                                timeout=10,
+                                headers=headers)
+
+        if response.status_code == 200:
+            data = response.json()
+
+            log.debug("get_user_repo_permission: data: %s", data)
+
+            return [
+                group_search["group_map"].get(
+                    access_map.get(data["access_level"]))
+            ]
 
     return []
 
@@ -92,6 +114,7 @@ def callback():
 
     token = oauth.fetch_token(data["token_url"],
                               client_secret=data["client_secret"],
+                              redirect_uri=data["redirect_uri"],
                               authorization_response=request.url)
 
     log.debug("callback: token: %s", token)
@@ -101,10 +124,12 @@ def callback():
 
     log.debug("callback: profile: %s", profile)
 
-    user_roles = get_user_repo_permission(profile["login"], data)
+    user_roles = get_user_repo_permission(
+        profile.get("login", profile.get("id")), data)
 
     access_token = create_access_token(
-        identity=profile["login"], additional_claims={"groups": user_roles})
+        identity=profile.get("login", profile.get("username")),
+        additional_claims={"groups": user_roles})
 
     # set jwt cookie
     response = make_response(redirect(url_for('login_page.login')))
@@ -147,7 +172,9 @@ def login():
 
         data = get_oauth_data()
 
-        oauth = OAuth2Session(data["client_id"])
+        oauth = OAuth2Session(data["client_id"],
+                              redirect_uri=data["redirect_uri"],
+                              scope=data["scope"])
         authorization_url, state = oauth.create_authorization_url(
             data["authorization_base_url"])
 
