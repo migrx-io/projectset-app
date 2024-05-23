@@ -59,6 +59,8 @@ spec:
               key: token
         - name: APP_CONF
           value: "/app/secret/app.yaml"
+        - name: AUTH_TYPES
+          value: "oauth"
         - name: LOGLEVEL
           value: DEBUG
         - name: GIT_EMAIL
