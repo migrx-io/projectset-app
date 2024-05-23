@@ -15,19 +15,38 @@ envs:
 auth:
 
   oauth:
+    provider: gitlab
+    client_id: "<client_id>"
+    client_secret: "<client_secret>"
+    authorization_base_url: 'https://gitlab.com/oauth/authorize'
+    token_url: 'https://gitlab.com/oauth/token'
+    profile_url: 'https://gitlab.com/api/v4/user'
+    redirect_uri: 'http://localhost:8082/oauth/callback'
+    scope: 'read_user'
+    groupSearch:
+      url: 'https://gitlab.com/api/v4/projects/58100321/members/all/{user}'
+      token: '<token>'
+      group_map:
+        owner: "chatuser"
+        developer: "user"
+
+
+  _oauth:
     provider: github
     client_id: "<client_id>"
     client_secret: "<client_secret>"
     authorization_base_url: 'https://github.com/login/oauth/authorize'
     token_url: 'https://github.com/login/oauth/access_token'
     profile_url: 'https://api.github.com/user'
-
+    redirect_uri: 'http://localhost:8082/oauth/callback'
+    scope: 'read:user'
     groupSearch:
-      url: 'https://api.github.com/repos/<USER>/<REPO>/collaborators/{user}/permission'
+      url: 'https://api.github.com/repos/migrx-io/projectset-crs/collaborators/{user}/permission'
       token: '<token>'
       group_map:
         admin: "admin"
         read: "user"
+
 
   ldap:
     url: "ldap://127.0.0.1:389"
@@ -48,9 +67,18 @@ auth:
         admins: "admin"
         developers: "user"
 
-chat_only: user
+chat_only: chatuser
 
 roles:
+
+  chatuser:
+    (.*)/logout/?$:
+      - all
+    (.*)/chat/?$:
+      - all
+    (.*)/chat/data:
+      - all
+
   user:
     (.*)/projectset/?$:
       - all
